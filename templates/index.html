@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block body %}
+<div class="container-fluid">
+  <form class="login-form mx-auto" id="auth-form" action="{{ url_for('login') }}" method="post">
+      <h4 class="text-center">Login</h4>
+      <div class="mb-3 mt-5">
+        <label for="exampleInputEmail1" class="form-label">User Name</label>
+        <input type="text" class="form-control" name="username" placeholder="Username" aria-describedby="emailHelp">
+      </div>
+      <div class="mb-3">
+        <label for="exampleInputPassword1" class="form-label">Password</label>
+        <input type="password" name="password" placeholder="Password" class="form-control">
+      </div>
+    
+      <input type="submit" value="Login" onclick="setFormAction('login')" class="btn login-btn-primary btn-primary mt-5">
+      <input type="button" value="Register" onclick="setFormAction('register')" class="btn login-btn-primary btn-primary mt-5">
+    </form>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <p style="color: red;">{{ message }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+
+
+<script>
+    function setFormAction(action) {
+        var form = document.getElementById('auth-form');
+        if (action === 'login') {
+            form.action = "{{ url_for('login') }}";
+            form.method = "post";
+            form.submit();
+        } else if (action === 'register') {
+            form.action = "{{ url_for('register') }}";
+            form.method = "post";
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Record Details</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h2 { color: #333; }
+        .container { border: 1px solid #ccc; padding: 15px; width: 60%; margin: auto; }
+        p { font-size: 16px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Contact Details</h2>
+        <p><strong>First Name:</strong> {{ task.first_name }}</p>
+        <p><strong>Last Name:</strong> {{ task.last_name }}</p>
+        <p><strong>Email:</strong> {{ task.email }}</p>
+        <p><strong>Date Created:</strong> {{ task.date_created.strftime("%Y-%m-%d") }}</p>
+    </div>
+</body>
+</html>

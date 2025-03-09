@@ -1,0 +1,202 @@
+{% extends "base.html" %}
+
+{% block title %}Offence Records{% endblock %}
+
+{% block body %}
+<nav class="navbar navbar-expand-lg bg-body-tertiary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="#">Traffic Guard</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('dashboard') }}">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="{{ url_for('offence') }}">Offence</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#contactModal" onclick="openModal()">
+        Add New
+    </button>
+
+    <table class="table table-striped mt-3">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Vehicle Number</th>
+                <th>Offense</th>
+                <th>Fine</th>
+                <th>Paid</th>
+                <th>License Number</th>
+                <th>Police Station</th>
+                <th>Officer Ref</th>
+                <th>Date Created</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+                <tr>
+                    <td>{{ task.first_name }}</td>
+                    <td>{{ task.last_name }}</td>
+                    <td>{{ task.vehicle_number }}</td>
+                    <td>{{ task.offense }}</td>
+                    <td>{{ task.fine }}</td>
+                    <td>{{ "Yes" if task.paied else "No" }}</td>
+                    <td>{{ task.license_number }}</td>
+                    <td>{{ task.police_station }}</td>
+                    <td>{{ task.officer_ref }}</td>
+                    <td>{{ task.date_created.strftime("%Y-%m-%d") }}</td>
+                    <td>
+                      <div class="dropdown">
+                          <button class="btn" type="button" id="dropdownMenuButton{{ task.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                              &#8942;
+                          </button>
+                          <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ task.id }}">
+                                <li>
+                                <a class="dropdown-item" href="#" onclick="openModal('{{ task.id }}', '{{ task.first_name }}', '{{ task.last_name }}', '{{ task.email }}', '{{ task.vehicle_number }}', '{{ task.offense }}', '{{ task.paied }}', '{{ task.license_number }}', '{{ task.police_station }}', '{{ task.officer_ref }}', '{{ task.is_court_case }}', '{{ task.court_date }}', '{{ task.court }}')">Update</a>
+                              </li>
+                              <li><a class="dropdown-item" href="/delete/{{task.id}}">Delete</a></li>
+                              <li><a class="dropdown-item" href="{{ url_for('download_pdf', id=task.id) }}" target="_blank">Download PDF</a></li>
+                          </ul>
+                      </div>
+                  </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="contactModal" tabindex="-1" aria-labelledby="contactModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="contactModalLabel">Add New Contact</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="testForm" action="{{ url_for('createOffenceRecord') }}" method="POST">
+                    <input type="hidden" id="taskId" name="task_id">
+                    <div class="mb-3">
+                        <label for="fname" class="form-label">First Name</label>
+                        <input id="fname" type="text" class="form-control" name="fname">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="lname" class="form-label">Last Name</label>
+                        <input id="lname" type="text" class="form-control" name="lname">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input id="email" type="email" class="form-control" name="email">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="vehicle_number" class="form-label">Vehicle Number</label>
+                        <input id="vehicle_number" type="text" class="form-control" name="vehicle_number">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="offense" class="form-label">Offense</label>
+                        <select id="offense" class="form-control" name="offense" onchange="updateFine()">
+                            <option value="">Select an Offense</option>
+                            {% for offense, fine in offence_fines.items() %}
+                                <option value="{{ offense }}" data-fine="{{ fine }}">{{ offense }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+
+                    <div class="mb-3">
+                        <label for="paid" class="form-label">Paid</label>
+                        <select id="paid" class="form-control" name="paid">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="license_number" class="form-label">License Number</label>
+                        <input id="license_number" type="text" class="form-control" name="license_number">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="police_station" class="form-label">Police Station</label>
+                        <input id="police_station" type="text" class="form-control" name="police_station">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="officer_ref" class="form-label">Officer Ref</label>
+                        <input id="officer_ref" type="text" class="form-control" name="officer_ref">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="is_court_case" class="form-label">Court Case</label>
+                        <select id="is_court_case" class="form-control" name="is_court_case">
+                            <option value="false">No</option>
+                            <option value="true">Yes</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="court_date" class="form-label">Court Date</label>
+                        <input id="court_date" type="date" class="form-control" name="court_date">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="court" class="form-label">Court</label>
+                        <input id="court" type="text" class="form-control" name="court">
+                    </div>
+                    <button type="submit" id="submitBtn" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModal(id="", fname="", lname="", email="", vehicle_number="", offense="", paid="false", license_number="", police_station="", officer_ref="", is_court_case="false", court_date="", court="") {
+        document.getElementById('taskId').value = id;
+        document.getElementById('fname').value = fname;
+        document.getElementById('lname').value = lname;
+        document.getElementById('email').value = email;
+        document.getElementById('vehicle_number').value = vehicle_number;
+        document.getElementById('offense').value = offense;
+        document.getElementById('paid').value = paid === 'true' ? true : false;
+        document.getElementById('license_number').value = license_number;
+        document.getElementById('police_station').value = police_station;
+        document.getElementById('officer_ref').value = officer_ref;
+        document.getElementById('is_court_case').value = is_court_case === 'true' ? true : false;;
+        document.getElementById('court_date').value = court_date;
+        document.getElementById('court').value = court;
+        
+        if (id) {
+            document.getElementById('contactModalLabel').innerText = 'Update Contact';
+            document.getElementById('submitBtn').innerText = 'Update';
+            document.getElementById('testForm').action = `/update/${id}`;
+        } else {
+            document.getElementById('contactModalLabel').innerText = 'Add New Contact';
+            document.getElementById('submitBtn').innerText = 'Submit';
+            document.getElementById('testForm').action = "{{ url_for('createOffenceRecord') }}";
+        }
+        
+        var modal = new bootstrap.Modal(document.getElementById('contactModal'));
+        modal.show();
+    }
+</script>
+
+{% endblock %}
